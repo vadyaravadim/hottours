@@ -54,7 +54,7 @@ namespace TourService
 
                         sbHotUrl.Replace("0000000000", widgedId.ToString());
                         sbHotUrl.Insert(sbHotUrl.Length, country);
-                        //sbHotUrl.Insert(sbHotUrl.Length, $"&checkInDateRange[from]={DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")}&checkInDateRange[to]={DateTime.Now.AddDays(2).AddMonths(2).ToString("yyyy-MM-dd")}");
+                        sbHotUrl.Insert(sbHotUrl.Length, $"&checkInDateRange[from]={DateTime.Now.ToString("yyyy-MM-dd")}&checkInDateRange[to]={DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")}");
                         
                         Console.WriteLine(sbHotUrl.ToString());
                         HttpResponseMessage httpResponse = await Client.GetAsync(sbHotUrl.ToString());
@@ -65,8 +65,13 @@ namespace TourService
                         StringBuilder hotContent = new StringBuilder(await httpResponse.Content.ReadAsStringAsync());
                         hotContent.Replace($"_tatData.items['{widgedId}'].data =", "");
                         hotContent.Remove(hotContent.Length - 2, 2);
-                        HotTours hotTours = JsonConvert.DeserializeObject<HotTours>(hotContent.ToString());
-                        Travels.Add(hotTours);
+                        hotContent.Replace("\n", "");
+                        string content = hotContent.ToString().Trim();
+                        if (!string.IsNullOrEmpty(content))
+                        {
+                            HotTours hotTours = JsonConvert.DeserializeObject<HotTours>(content);
+                            Travels.Add(hotTours);  
+                        }
                     }
                 });
             });
